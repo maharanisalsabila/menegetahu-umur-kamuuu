@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pendeteksi Usia & Zodiak</title>
+    <style>
+        :root{--bg:#eef2f4;--card:#fff;--accent:#007bff}
+        body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);margin:0;display:flex;align-items:center;justify-content:center;height:100vh;padding:16px}
+        .card{background:var(--card);padding:22px;border-radius:14px;box-shadow:0 6px 24px rgba(2,6,23,0.08);max-width:420px;width:100%}
+        h1{font-size:20px;margin:0 0 12px;text-align:center}
+        label{display:block;font-size:13px;margin-top:8px;color:#333}
+        input[type="date"]{width:100%;padding:12px;border-radius:10px;border:1px solid #d7dbe0;font-size:15px;margin-top:6px}
+        button{width:100%;padding:12px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:600;margin-top:12px;cursor:pointer}
+        .result{margin-top:14px;background:#f6fbff;padding:12px;border-radius:10px;font-size:15px;text-align:center;color:#062a4d}
+        .small{font-size:13px;color:#556}
+        footer{margin-top:10px;text-align:center;font-size:13px;color:#667}
+    </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Pendeteksi Usia & Zodiak</h1>
+
+    <label for="tanggal">Masukkan tanggal lahir (tanggal/bulan/tahun)</label>
+    <input id="tanggal" type="date" aria-label="tanggal lahir" />
+
+    <button id="btn">Deteksi Usia & Zodiak</button>
+
+    <div id="output" class="result" aria-live="polite">Hasil akan tampil di sini setelah tekan tombol.</div>
+
+    <footer class="small">Bisa disimpan sebagai file .html lalu buka di browser. Untuk hosting cepat: GitHub Pages / Netlify / Vercel.</footer>
+  </main>
+
+<script>
+function getZodiak(day, month){
+  const list = [
+    {name:"Capricorn", start:[12,22], end:[1,19]},
+    {name:"Aquarius", start:[1,20], end:[2,18]},
+    {name:"Pisces", start:[2,19], end:[3,20]},
+    {name:"Aries", start:[3,21], end:[4,19]},
+    {name:"Taurus", start:[4,20], end:[5,20]},
+    {name:"Gemini", start:[5,21], end:[6,20]},
+    {name:"Cancer", start:[6,21], end:[7,22]},
+    {name:"Leo", start:[7,23], end:[8,22]},
+    {name:"Virgo", start:[8,23], end:[9,22]},
+    {name:"Libra", start:[9,23], end:[10,22]},
+    {name:"Scorpio", start:[10,23], end:[11,21]},
+    {name:"Sagitarius", start:[11,22], end:[12,21]}
+  ];
+  for(const z of list){
+    const [sm, sd] = z.start;
+    const [em, ed] = z.end;
+    if ((month === sm && day >= sd) || (month === em && day <= ed)) return z.name;
+  }
+  return "Tidak Diketahui";
+}
+
+function hitungUsia(lahirDate){
+  const now = new Date();
+  let y = now.getFullYear() - lahirDate.getFullYear();
+  let m = now.getMonth() - lahirDate.getMonth();
+  let d = now.getDate() - lahirDate.getDate();
+
+  if (m < 0 || (m === 0 && d < 0)) {
+    y--;
+    m += 12;
+  }
+  if (d < 0) {
+    const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    d += prevMonthLastDay;
+    m--;
+  }
+  return {years: y, months: m, days: d};
+}
+
+document.getElementById('btn').addEventListener('click', function(){
+  const val = document.getElementById('tanggal').value;
+  const out = document.getElementById('output');
+  if (!val) { out.innerHTML = '<strong>Silakan masukkan tanggal lahir.</strong>'; return; }
+  const lahir = new Date(val);
+  if (isNaN(lahir)) { out.innerHTML = '<strong>Format tanggal tidak valid.</strong>'; return; }
+
+  // Cek jika tanggal di masa depan
+  const now = new Date();
+  if (lahir > now) { out.innerHTML = '<strong>Tanggal lahir tidak boleh di masa depan.</strong>'; return; }
+
+  const age = hitungUsia(lahir);
+  const z = getZodiak(lahir.getDate(), lahir.getMonth() + 1);
+
+  out.innerHTML = '<strong>Usia:</strong><br>' + age.years + ' Tahun, ' + age.months + ' Bulan, ' + age.days + ' Hari' +
+                  '<br><br><strong>Zodiak:</strong> ' + z;
+});
+</script>
+</body>
+</html>
